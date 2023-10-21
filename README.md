@@ -33,4 +33,4 @@ go get github.com/DATA-DOG/go-sqlmock
 ```
 ## Rancangan ERD
 
-![Diagram](./Diskusi-Tugas.jpg)
+![Diagram](./assets/Diskusi-Tugas.jpg)
