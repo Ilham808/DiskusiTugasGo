@@ -20,5 +20,5 @@ type UserRepository interface {
 	Fetch() ([]User, error)
 	Store(user *User) error
 	GetByID(id int) (User, error)
-	GetByEmail(email string) (User, error)
+	GetByEmail(email string) (*User, error)
 }
