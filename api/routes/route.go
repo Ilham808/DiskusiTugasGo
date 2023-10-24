@@ -9,4 +9,5 @@ import (
 
 func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 	NewSignupRouter(e, config, db)
+	NewLoginRouter(e, config, db)
 }
