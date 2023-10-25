@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"DiskusiTugas/domain"
@@ -69,5 +70,33 @@ func ExtractIDFromToken(requestToken string, secret string) (string, error) {
 		return "", fmt.Errorf("Invalid Token")
 	}
 
-	return claims["id"].(string), nil
+	idFloat64, ok := claims["id"].(float64)
+	if !ok {
+		return "", fmt.Errorf("Invalid ID format")
+	}
+	idString := strconv.FormatFloat(idFloat64, 'f', -1, 64)
+
+	return idString, nil
+}
+
+func ExtractIsStudentFromToken(requestToken string, secret string) (bool, bool) {
+	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return false, false
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok && !token.Valid {
+		return false, false
+	}
+
+	isStudent, ok := claims["is_student"].(bool)
+	return isStudent, ok
 }
