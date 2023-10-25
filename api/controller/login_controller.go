@@ -46,6 +46,12 @@ func (lo *LoginController) Login() echo.HandlerFunc {
 			})
 		}
 
+		if user.Status == "block" {
+			return c.JSON(http.StatusForbidden, map[string]interface{}{
+				"message": "User blocked",
+			})
+		}
+
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 				"message": "Invalid password",
