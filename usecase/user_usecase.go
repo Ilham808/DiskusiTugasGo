@@ -33,12 +33,21 @@ func (u *userUseCase) Store(user *domain.User) error {
 	return u.userRepository.Store(user)
 }
 
+func (u *userUseCase) GetByEmail(email string) error {
+	_, err := u.userRepository.GetByEmail(email)
+	if err == nil {
+		return nil
+	}
+
+	return err
+}
+
 func (u *userUseCase) GetByID(id int) (domain.User, error) {
 	return u.userRepository.GetByID(id)
 }
 
 func (u *userUseCase) Update(user *domain.User) error {
-	return nil
+	return u.userRepository.Update(user)
 }
 
 func (u *userUseCase) Destroy(id int) error {
