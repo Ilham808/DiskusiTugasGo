@@ -56,6 +56,9 @@ func (ur *userRepository) Store(user *domain.User) error {
 
 func (ur *userRepository) GetByID(id int) (domain.User, error) {
 	var user domain.User
+	if err := ur.db.Where("id = ?", id).First(&user).Error; err != nil {
+		return domain.User{}, err
+	}
 	return user, nil
 }
 

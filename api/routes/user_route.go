@@ -18,4 +18,5 @@ func NewUserRoute(config *config.Config, db *gorm.DB, adminGroup *echo.Group) {
 	}
 
 	adminGroup.GET("/users", sc.FetchWithPagination())
+	adminGroup.GET("/users/:id", sc.GetByID())
 }

@@ -66,18 +66,6 @@ func (userController *UserController) FetchWithPagination() echo.HandlerFunc {
 			pageSize = 10
 		}
 
-		// totalItems, err := userController.UserUseCase.CountData()
-		// if err != nil {
-		// 	return c.JSON(http.StatusBadRequest, map[string]interface{}{
-		// 		"message": err.Error(),
-		// 	})
-		// }
-
-		// prevPage := page - 1
-		// if prevPage < 1 {
-		// 	prevPage = 0
-		// }
-
 		users, totalItems, err := userController.UserUseCase.FetchWithPagination(page, pageSize)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
@@ -107,4 +95,28 @@ func (userController *UserController) FetchWithPagination() echo.HandlerFunc {
 
 func (userController *UserController) Store(user *domain.User) error {
 	return userController.UserUseCase.Store(user)
+}
+
+func (userController *UserController) GetByID() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		user, err := userController.UserUseCase.GetByID(id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Success get user",
+			"user":    user,
+		})
+	}
+
 }
