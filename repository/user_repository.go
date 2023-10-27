@@ -74,3 +74,10 @@ func (ur *userRepository) Update(user *domain.User) error {
 	}
 	return nil
 }
+
+func (ur *userRepository) Destroy(id int) error {
+	if err := ur.db.Where("id = ?", id).Delete(&domain.User{}).Error; err != nil {
+		return err
+	}
+	return nil
+}

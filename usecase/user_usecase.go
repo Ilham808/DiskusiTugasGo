@@ -51,5 +51,5 @@ func (u *userUseCase) Update(user *domain.User) error {
 }
 
 func (u *userUseCase) Destroy(id int) error {
-	return nil
+	return u.userRepository.Destroy(id)
 }

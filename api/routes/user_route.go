@@ -21,4 +21,5 @@ func NewUserRoute(config *config.Config, db *gorm.DB, adminGroup *echo.Group) {
 	adminGroup.GET("/users/:id", sc.GetByID())
 	adminGroup.POST("/users", sc.Store())
 	adminGroup.PUT("/users/:id", sc.Update())
+	adminGroup.DELETE("/users/:id", sc.Destroy())
 }

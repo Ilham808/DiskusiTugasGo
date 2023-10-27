@@ -41,4 +41,5 @@ type UserRepository interface {
 	GetByID(id int) (User, error)
 	GetByEmail(email string) (*User, error)
 	Update(user *User) error
+	Destroy(id int) error
 }
