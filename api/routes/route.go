@@ -15,17 +15,20 @@ func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 
 	jwtMiddleware := middleware.JwtAuthMiddleware(config.AccessTokenSecret)
 
-	adminGroup := e.Group("")
+	adminGroup := e.Group("/admin")
 	adminGroup.Use(jwtMiddleware)
-	adminGroup.GET("/hello", func(c echo.Context) error {
-		isStudent := c.Get("is_student").(bool)
-		if isStudent {
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"message": "Not authorized as admin",
-			})
+	adminGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			isStudent := c.Get("is_student").(bool)
+			if !isStudent {
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+					"message": "Not authorized as admin",
+				})
+			}
+			return next(c)
 		}
-		return c.String(http.StatusOK, "Hello, World!")
 	})
+	NewUserRoute(config, db, adminGroup)
 
 	studentGroup := e.Group("/student")
 	studentGroup.Use(jwtMiddleware)

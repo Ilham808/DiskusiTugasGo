@@ -16,8 +16,19 @@ type User struct {
 	Status     string `json:"status" form:"status"`
 }
 
+type UserUseCase interface {
+	Fetch() ([]User, error)
+	FetchWithPagination(page, pageSize int) ([]User, int, error)
+	// CountData() (int64, error)
+	Store(user *User) error
+	GetByID(id int) (User, error)
+	Update(user *User) error
+	Destroy(id int) error
+}
 type UserRepository interface {
 	Fetch() ([]User, error)
+	FetchWithPagination(page, pageSize int) ([]User, int, error)
+	// CountData() (int64, error)
 	Store(user *User) error
 	GetByID(id int) (User, error)
 	GetByEmail(email string) (*User, error)
