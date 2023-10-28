@@ -128,7 +128,7 @@ func (userController *UserController) Store() echo.HandlerFunc {
 			var errorMsgs []string
 			for _, err := range err.(validator.ValidationErrors) {
 				field := strings.ToLower(err.StructNamespace())
-				errorMsgs = append(errorMsgs, "Field "+field+" tidak valid")
+				errorMsgs = append(errorMsgs, "Field "+field+" no valid")
 			}
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"message": "Validation failed",
@@ -246,7 +246,7 @@ func (userController *UserController) Update() echo.HandlerFunc {
 			var errorMsgs []string
 			for _, err := range err.(validator.ValidationErrors) {
 				field := strings.ToLower(err.StructNamespace())
-				errorMsgs = append(errorMsgs, "Field "+field+" tidak valid")
+				errorMsgs = append(errorMsgs, "Field "+field+" no valid")
 			}
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"message": "Validation failed",

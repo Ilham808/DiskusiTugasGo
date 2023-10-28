@@ -29,6 +29,7 @@ func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 		}
 	})
 	NewUserRoute(config, db, adminGroup)
+	NewSubjectRoute(config, db, adminGroup)
 
 	studentGroup := e.Group("/student")
 	studentGroup.Use(jwtMiddleware)
