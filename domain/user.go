@@ -6,14 +6,15 @@ import (
 
 type User struct {
 	*gorm.Model
-	Name       string `json:"name" form:"name"`
-	Email      string `json:"email" form:"email"`
-	Password   string `json:"password" form:"password"`
-	Gender     string `json:"gender" form:"gender"`
-	University string `json:"university" form:"university"`
-	Avatar     string `json:"avatar" form:"avatar"`
-	IsStudent  bool   `json:"is_student" form:"is_student"`
-	Status     string `json:"status" form:"status"`
+	Name       string     `json:"name" form:"name"`
+	Email      string     `json:"email" form:"email"`
+	Password   string     `json:"password" form:"password"`
+	Gender     string     `json:"gender" form:"gender"`
+	University string     `json:"university" form:"university"`
+	Avatar     string     `json:"avatar" form:"avatar"`
+	IsStudent  bool       `json:"is_student" form:"is_student"`
+	Status     string     `json:"status" form:"status"`
+	Questions  []Question `json:"-" gorm:"foreignkey:UserID"`
 }
 
 type UserRequest struct {

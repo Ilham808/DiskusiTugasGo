@@ -18,6 +18,10 @@ type Config struct {
 	RefreshTokenExpiryHour int
 	AccessTokenSecret      string
 	RefreshTokenSecret     string
+	CloudinaryAPISecret    string
+	CloudinaryAPIKey       string
+	CloudinaryCloudName    string
+	CloudinaryUploadFolder string
 }
 
 func InitConfig() *Config {
@@ -49,6 +53,10 @@ func LoadConfig() (*Config, error) {
 		RefreshTokenExpiryHour: getEnvAsInt("REFRESH_TOKEN_EXPIRY_HOUR", 168),
 		AccessTokenSecret:      os.Getenv("ACCESS_TOKEN_SECRET"),
 		RefreshTokenSecret:     os.Getenv("REFRESH_TOKEN_SECRET"),
+		CloudinaryAPISecret:    os.Getenv("CLOUDINARY_API_SECRET"),
+		CloudinaryAPIKey:       os.Getenv("CLOUDINARY_API_KEY"),
+		CloudinaryCloudName:    os.Getenv("CLOUDINARY_CLOUD_NAME"),
+		CloudinaryUploadFolder: os.Getenv("CLOUDINARY_UPLOAD_FOLDER"),
 	}
 
 	return config, nil
