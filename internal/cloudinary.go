@@ -3,6 +3,9 @@ package internal
 import (
 	"DiskusiTugas/config"
 	"context"
+	"net/url"
+	"path/filepath"
+	"strings"
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -31,4 +34,32 @@ func UploadToCloudinary(input interface{}) (string, error) {
 
 	imageUrl := result.SecureURL
 	return imageUrl, nil
+}
+
+func DeleteFromCloudinary(input string) error {
+	config := config.InitConfig()
+	ctx := context.Background()
+	cld, err := SetupCloudinary(config.CloudinaryAPISecret, config.CloudinaryCloudName, config.CloudinaryAPIKey)
+	if err != nil {
+		return err
+	}
+	_, err = cld.Upload.Destroy(ctx, uploader.DestroyParams{
+		PublicID: input})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetPublicIDFromURL(urlString string) (string, error) {
+	parsedURL, err := url.Parse(urlString)
+	if err != nil {
+		return "", err
+	}
+	path := parsedURL.Path
+	path = strings.TrimPrefix(path, "/")
+	parts := strings.Split(path, "/")
+	result := strings.Join(parts[len(parts)-2:], "/")
+	result = strings.TrimSuffix(result, filepath.Ext(result))
+	return result, nil
 }

@@ -261,29 +261,32 @@ func (sc *QuestionController) Store() echo.HandlerFunc {
 		}
 
 		file, err := c.FormFile("file")
-		if err != nil {
+		if err == http.ErrMissingFile {
+			questionRequest.FileUrl = ""
+		} else if err != nil {
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{
 				"message": err.Error(),
 			})
-		}
-		if file != nil {
-			openedFile, err := file.Open()
-			if err != nil {
-				return c.JSON(http.StatusBadRequest, map[string]interface{}{
-					"message": err.Error(),
-				})
-			}
+		} else {
+			if file != nil {
+				openedFile, err := file.Open()
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"message": err.Error(),
+					})
+				}
 
-			imageUrl, err := sc.QuestionUseCase.StoreFile(&domain.QuestionRequestFile{
-				File: openedFile,
-			})
-			if err != nil {
-				return c.JSON(http.StatusBadRequest, map[string]interface{}{
-					"message": err.Error(),
+				imageUrl, err := sc.QuestionUseCase.StoreFile(&domain.QuestionRequestFile{
+					File: openedFile,
 				})
-			}
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"message": err.Error(),
+					})
+				}
 
-			questionRequest.FileUrl = imageUrl
+				questionRequest.FileUrl = imageUrl
+			}
 		}
 
 		userIDStr := c.Get("x-user-id").(string)
@@ -301,5 +304,91 @@ func (sc *QuestionController) Store() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "Question created successfully",
 		})
+	}
+}
+
+func (sc *QuestionController) Update() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var questionRequest domain.QuestionRequest
+
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		if err := c.Bind(&questionRequest); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		validate := validator.New()
+		if err := validate.Struct(questionRequest); err != nil {
+			var errorMsgs []string
+			for _, err := range err.(validator.ValidationErrors) {
+				field := strings.ToLower(err.StructNamespace())
+				errorMsgs = append(errorMsgs, "Field "+field+" no valid")
+			}
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Validation failed",
+				"error":   errorMsgs,
+			})
+		}
+
+		question, err := sc.QuestionUseCase.GetByID(id)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"message": "Question not found",
+			})
+		}
+
+		xUserID, _ := strconv.ParseUint(c.Get("x-user-id").(string), 10, 32)
+		if question.UserID != uint(xUserID) {
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"message": "You are not authorized to update this question",
+			})
+		}
+
+		file, err := c.FormFile("file")
+		if err == http.ErrMissingFile {
+			questionRequest.FileUrl = ""
+		} else if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": err.Error(),
+			})
+		} else {
+			openedFile, err := file.Open()
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"message": err.Error(),
+				})
+			}
+
+			imageUrl, err := sc.QuestionUseCase.StoreFile(&domain.QuestionRequestFile{
+				File: openedFile,
+			})
+
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"message": err.Error(),
+				})
+			}
+
+			questionRequest.FileUrl = imageUrl
+		}
+
+		err2 := sc.QuestionUseCase.Update(id, &questionRequest)
+		if err2 != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Question updated successfully",
+		})
+
 	}
 }

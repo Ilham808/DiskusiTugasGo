@@ -56,3 +56,10 @@ func (q *questionRepository) Store(question *domain.Question) error {
 	}
 	return nil
 }
+
+func (q *questionRepository) Update(id int, question *domain.Question) error {
+	if err := q.db.Model(&domain.Question{}).Where("id = ?", id).Updates(question).Error; err != nil {
+		return err
+	}
+	return nil
+}

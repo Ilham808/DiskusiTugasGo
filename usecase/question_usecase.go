@@ -44,3 +44,30 @@ func (q *questionUseCase) Store(req *domain.QuestionRequest) error {
 func (q *questionUseCase) StoreFile(req *domain.QuestionRequestFile) (string, error) {
 	return internal.UploadToCloudinary(req.File)
 }
+
+func (q *questionUseCase) DestroyFile(fileUrl string) error {
+	return internal.DeleteFromCloudinary(fileUrl)
+}
+
+func (q *questionUseCase) Update(id int, req *domain.QuestionRequest) error {
+	getData, err := q.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if req.FileUrl != "" {
+		urlResult, _ := internal.GetPublicIDFromURL(getData.File)
+		err := internal.DeleteFromCloudinary(urlResult)
+		if err != nil {
+			return err
+		}
+	}
+
+	getData.UserID = req.UserID
+	getData.SubjectID = req.SubjectID
+	getData.Question = req.Question
+	getData.Description = req.Description
+	getData.File = req.FileUrl
+
+	return q.questionRepository.Update(id, &getData)
+}
