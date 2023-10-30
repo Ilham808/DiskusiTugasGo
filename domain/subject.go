@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Subject struct {
 	*gorm.Model
-	Name      string     `json:"name" form:"name"`
-	Slug      string     `json:"slug" form:"slug"`
+	Name      string
+	Slug      string
 	Questions []Question `json:"-" gorm:"foreignkey:SubjectID"`
 }
 

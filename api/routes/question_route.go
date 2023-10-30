@@ -19,5 +19,6 @@ func NewQuestionRoute(config *config.Config, db *gorm.DB, studentGroup *echo.Gro
 	}
 
 	studentGroup.GET("/questions", sc.FetchWithPagination())
+	studentGroup.GET("/questions/:id", sc.GetByID())
 	studentGroup.POST("/questions", sc.Store())
 }

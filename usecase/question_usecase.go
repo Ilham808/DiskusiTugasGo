@@ -24,6 +24,10 @@ func (q *questionUseCase) FetchWithPagination(page, pageSize int) ([]domain.Ques
 	return questions, totalItems, nil
 }
 
+func (q *questionUseCase) GetByID(id int) (domain.Question, error) {
+	return q.questionRepository.GetByID(id)
+}
+
 func (q *questionUseCase) Store(req *domain.QuestionRequest) error {
 
 	question := &domain.Question{
