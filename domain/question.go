@@ -36,6 +36,7 @@ type QuestionUseCase interface {
 	DestroyFile(fileUrl string) error
 	GetByID(id int) (Question, error)
 	Update(id int, question *QuestionRequest) error
+	Destroy(id int) error
 }
 
 type QuestionRepository interface {
@@ -43,4 +44,5 @@ type QuestionRepository interface {
 	Store(question *Question) error
 	GetByID(id int) (Question, error)
 	Update(id int, question *Question) error
+	Destroy(id int) error
 }

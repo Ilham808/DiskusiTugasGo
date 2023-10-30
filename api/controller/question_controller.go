@@ -392,3 +392,39 @@ func (sc *QuestionController) Update() echo.HandlerFunc {
 
 	}
 }
+
+func (sc *QuestionController) Destroy() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		question, err := sc.QuestionUseCase.GetByID(id)
+		if err != nil {
+			return c.JSON(http.StatusNotFound, map[string]interface{}{
+				"message": "Question not found",
+			})
+		}
+
+		xUserID, _ := strconv.ParseUint(c.Get("x-user-id").(string), 10, 32)
+		if question.UserID != uint(xUserID) {
+			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+				"message": "You are not authorized to delete this question",
+			})
+		}
+
+		err2 := sc.QuestionUseCase.Destroy(id)
+		if err2 != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Question deleted successfully",
+		})
+	}
+}

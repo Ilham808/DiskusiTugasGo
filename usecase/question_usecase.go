@@ -71,3 +71,16 @@ func (q *questionUseCase) Update(id int, req *domain.QuestionRequest) error {
 
 	return q.questionRepository.Update(id, &getData)
 }
+
+func (q *questionUseCase) Destroy(id int) error {
+	getData, err := q.GetByID(id)
+	if err != nil {
+		return err
+	}
+	urlResult, _ := internal.GetPublicIDFromURL(getData.File)
+	err = internal.DeleteFromCloudinary(urlResult)
+	if err != nil {
+		return err
+	}
+	return q.questionRepository.Destroy(id)
+}

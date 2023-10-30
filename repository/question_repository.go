@@ -63,3 +63,10 @@ func (q *questionRepository) Update(id int, question *domain.Question) error {
 	}
 	return nil
 }
+
+func (q *questionRepository) Destroy(id int) error {
+	if err := q.db.Where("id = ?", id).Delete(&domain.Question{}).Error; err != nil {
+		return err
+	}
+	return nil
+}
