@@ -31,15 +31,18 @@ func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 	NewUserRoute(config, db, adminGroup)
 	NewSubjectRoute(config, db, adminGroup)
 
-	studentGroup := e.Group("/student")
+	studentGroup := e.Group("")
 	studentGroup.Use(jwtMiddleware)
-	studentGroup.GET("/hello", func(c echo.Context) error {
-		isStudent := c.Get("is_student").(bool)
-		if !isStudent {
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"message": "Not authorized as student",
-			})
+	studentGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			isStudent := c.Get("is_student").(bool)
+			if !isStudent {
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
+					"message": "Not authorized as student",
+				})
+			}
+			return next(c)
 		}
-		return c.String(http.StatusOK, "Hello, World!")
 	})
+	NewQuestionRoute(config, db, studentGroup)
 }
