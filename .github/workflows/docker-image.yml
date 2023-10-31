@@ -29,6 +29,9 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek:latest
       -  
+        name: Copy .env.example to .env
+        run: cp .env.example .env
+      -
         name: connect ssh
         uses: appleboy/ssh-action@v0.1.9
         with:
