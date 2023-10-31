@@ -40,4 +40,4 @@ jobs:
             docker stop ${{ secrets.COINTAINER_NAME }}
             docker rm ${{ secrets.COINTAINER_NAME }}
             docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/imgkmb
-            docker run --name ${{ secrets.COINTAINER_NAME }} --rm -it -p 8000:8000 -d ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek
+            docker run --name ${{ secrets.COINTAINER_NAME }} --rm -it -p 8000:8000 -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASSWORD= -e DB_PORT=${{ secrets.DB_PORT }} -e DB_HOST=${{ secrets.DB_HOST }} -e DB_NAME=${{ secrets.DB_NAME }} -e ACCESS_TOKEN_EXPIRY_HOUR=${{ secrets.ACCESS_TOKEN_EXPIRY_HOUR }} -e REFRESH_TOKEN_EXPIRY_HOUR=${{ secrets.REFRESH_TOKEN_EXPIRY_HOUR }} -e ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} -e REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} -e CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} -e CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} -e CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} -e CLOUDINARY_UPLOAD_FOLDER=${{ secrets.CLOUDINARY_UPLOAD_FOLDER }} -e SERVER=8000 -d ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek
