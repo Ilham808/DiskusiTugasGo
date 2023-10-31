@@ -27,7 +27,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/imgkmb:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek:latest
       -  
         name: connect ssh
         uses: appleboy/ssh-action@v0.1.9
@@ -40,4 +40,4 @@ jobs:
             docker stop ${{ secrets.COINTAINER_NAME }}
             docker rm ${{ secrets.COINTAINER_NAME }}
             docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/imgkmb
-            docker run --name ${{ secrets.COINTAINER_NAME }} --rm -it -p 8000:8000 -d ${{ secrets.DOCKERHUB_USERNAME }}/imgkmb
+            docker run --name ${{ secrets.COINTAINER_NAME }} --rm -it -p 8000:8000 -d ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek
