@@ -92,3 +92,27 @@ func (a *answerRepository) UpdateUserVote(id uint, idLogin uint, voteType int) e
 
 	return nil
 }
+
+func (a *answerRepository) Comment(comment *domain.AnswerComment) error {
+	if err := a.db.Create(comment).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *answerRepository) DestroyComment(idComment int) error {
+	if err := a.db.Where("id = ?", idComment).Delete(&domain.AnswerComment{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *answerRepository) CommentById(idComment int) (domain.AnswerComment, error) {
+	var comment domain.AnswerComment
+	if err := a.db.First(&comment, idComment).Error; err != nil {
+		return comment, err
+	}
+
+	return comment, nil
+}

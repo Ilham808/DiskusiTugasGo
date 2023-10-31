@@ -24,4 +24,7 @@ func NewAnswerRoute(config *config.Config, db *gorm.DB, studentGroup *echo.Group
 
 	studentGroup.PUT("/answers/:id/upvote", sc.UpVote())
 	studentGroup.PUT("/answers/:id/downvote", sc.DownVote())
+
+	studentGroup.POST("/answers/:id/comments", sc.Comment())
+	studentGroup.DELETE("/answers/:id/comments/:comment_id", sc.DestroyComment())
 }
