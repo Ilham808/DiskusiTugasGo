@@ -47,3 +47,12 @@ func (a *answerRepository) Destroy(id int) error {
 
 	return nil
 }
+
+func (a *answerRepository) GetQuestionByID(id uint) (domain.Question, error) {
+	var question domain.Question
+	if err := a.db.First(&question, id).Error; err != nil {
+		return question, err
+	}
+
+	return question, nil
+}
