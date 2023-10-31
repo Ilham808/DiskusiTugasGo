@@ -45,4 +45,5 @@ func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 		}
 	})
 	NewQuestionRoute(config, db, studentGroup)
+	NewAnswerRoute(config, db, studentGroup)
 }

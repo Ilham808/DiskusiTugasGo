@@ -337,20 +337,6 @@ func (sc *QuestionController) Update() echo.HandlerFunc {
 			})
 		}
 
-		question, err := sc.QuestionUseCase.GetByID(id)
-		if err != nil {
-			return c.JSON(http.StatusNotFound, map[string]interface{}{
-				"message": "Question not found",
-			})
-		}
-
-		xUserID, _ := strconv.ParseUint(c.Get("x-user-id").(string), 10, 32)
-		if question.UserID != uint(xUserID) {
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"message": "You are not authorized to update this question",
-			})
-		}
-
 		file, err := c.FormFile("file")
 		if err == http.ErrMissingFile {
 			questionRequest.FileUrl = ""
@@ -402,21 +388,8 @@ func (sc *QuestionController) Destroy() echo.HandlerFunc {
 			})
 		}
 
-		question, err := sc.QuestionUseCase.GetByID(id)
-		if err != nil {
-			return c.JSON(http.StatusNotFound, map[string]interface{}{
-				"message": "Question not found",
-			})
-		}
-
 		xUserID, _ := strconv.ParseUint(c.Get("x-user-id").(string), 10, 32)
-		if question.UserID != uint(xUserID) {
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{
-				"message": "You are not authorized to delete this question",
-			})
-		}
-
-		err2 := sc.QuestionUseCase.Destroy(id)
+		err2 := sc.QuestionUseCase.Destroy(id, uint(xUserID))
 		if err2 != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 				"message": err.Error(),

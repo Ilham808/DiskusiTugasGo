@@ -3,6 +3,7 @@ package usecase
 import (
 	"DiskusiTugas/domain"
 	"DiskusiTugas/internal"
+	"errors"
 )
 
 type questionUseCase struct {
@@ -55,6 +56,10 @@ func (q *questionUseCase) Update(id int, req *domain.QuestionRequest) error {
 		return err
 	}
 
+	if req.UserID != getData.UserID {
+		return errors.New("You are not authorized to update this question")
+	}
+
 	if req.FileUrl != "" {
 		urlResult, _ := internal.GetPublicIDFromURL(getData.File)
 		err := internal.DeleteFromCloudinary(urlResult)
@@ -72,11 +77,16 @@ func (q *questionUseCase) Update(id int, req *domain.QuestionRequest) error {
 	return q.questionRepository.Update(id, &getData)
 }
 
-func (q *questionUseCase) Destroy(id int) error {
+func (q *questionUseCase) Destroy(id int, idLogin uint) error {
 	getData, err := q.GetByID(id)
 	if err != nil {
 		return err
 	}
+
+	if idLogin != getData.UserID {
+		return errors.New("You are not authorized to delete this question")
+	}
+
 	urlResult, _ := internal.GetPublicIDFromURL(getData.File)
 	err = internal.DeleteFromCloudinary(urlResult)
 	if err != nil {
