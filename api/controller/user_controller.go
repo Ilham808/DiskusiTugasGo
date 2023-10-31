@@ -33,6 +33,7 @@ type UserResponsePagination struct {
 }
 
 type UserResponse struct {
+	ID     uint   `json:"id"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Gender string `json:"gender"`
@@ -91,6 +92,7 @@ func (userController *UserController) FetchWithPagination() echo.HandlerFunc {
 		var userResponses []UserResponse
 		for _, user := range users {
 			userResponses = append(userResponses, UserResponse{
+				ID:     user.ID,
 				Name:   user.Name,
 				Email:  user.Email,
 				Gender: user.Gender,
@@ -293,6 +295,96 @@ func (userController *UserController) Destroy() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "User deleted successfully",
+		})
+	}
+}
+
+func (userController *UserController) FecthStudent() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		pageStr := c.QueryParam("page")
+		pageSizeStr := c.QueryParam("page_size")
+
+		var page, pageSize int
+		var err error
+
+		if pageStr != "" {
+			page, err = strconv.Atoi(pageStr)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"message": "Invalid page parameter",
+				})
+			}
+		} else {
+			page = 1
+		}
+
+		if pageSizeStr != "" {
+			pageSize, err = strconv.Atoi(pageSizeStr)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"message": "Invalid page_size parameter",
+				})
+			}
+		} else {
+			pageSize = 10
+		}
+
+		users, totalItems, err := userController.UserUseCase.FecthStudent(page, pageSize)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+		totalPages := int(math.Ceil(float64(totalItems) / float64(pageSize)))
+		if totalPages == 0 || totalPages < page {
+			totalPages = 1
+		}
+		prevPage := math.Max(float64(page-1), 0)
+
+		var userResponses []UserResponse
+		for _, user := range users {
+			userResponses = append(userResponses, UserResponse{
+				ID:     user.ID,
+				Name:   user.Name,
+				Email:  user.Email,
+				Gender: user.Gender,
+				Status: user.Status,
+			})
+		}
+
+		paginationResponse := UserResponsePagination{
+			Message: "Success fetch students",
+			Data:    userResponses,
+			Pagination: Pagination{
+				TotalRecords: totalItems,
+				CurrentPage:  page,
+				TotalPages:   totalPages,
+				NextPage:     page + 1,
+				PrevPage:     int(prevPage),
+			},
+		}
+		return c.JSON(http.StatusOK, paginationResponse)
+	}
+}
+
+func (userController *UserController) BlockStudent() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		err = userController.UserUseCase.BlockStudent(id)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Student blocked successfully",
 		})
 	}
 }

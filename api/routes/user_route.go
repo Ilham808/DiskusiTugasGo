@@ -17,6 +17,9 @@ func NewUserRoute(config *config.Config, db *gorm.DB, adminGroup *echo.Group) {
 		Config:      config,
 	}
 
+	adminGroup.GET("/students", sc.FecthStudent())
+	adminGroup.PUT("/students/:id/block", sc.BlockStudent())
+
 	adminGroup.GET("/users", sc.FetchWithPagination())
 	adminGroup.GET("/users/:id", sc.GetByID())
 	adminGroup.POST("/users", sc.Store())

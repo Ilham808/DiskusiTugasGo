@@ -16,5 +16,5 @@ func main() {
 
 	e := echo.New()
 	route.SetupRoute(e, app, db)
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", 8001)).Error())
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", 8000)).Error())
 }
