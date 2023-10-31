@@ -30,6 +30,8 @@ type UserRequest struct {
 type UserUseCase interface {
 	Fetch() ([]User, error)
 	FetchWithPagination(page, pageSize int) ([]User, int, error)
+	FecthStudent(page, pageSize int) ([]User, int, error)
+	BlockStudent(id int) error
 	// CountData() (int64, error)
 	GetByEmail(email string) error
 	Store(user *User) error
@@ -40,6 +42,8 @@ type UserUseCase interface {
 type UserRepository interface {
 	Fetch() ([]User, error)
 	FetchWithPagination(page, pageSize int) ([]User, int, error)
+	FecthStudent(page, pageSize int) ([]User, int, error)
+	BlockStudent(id int) error
 	Store(user *User) error
 	GetByID(id int) (User, error)
 	GetByEmail(email string) (*User, error)

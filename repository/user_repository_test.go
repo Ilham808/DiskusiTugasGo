@@ -95,7 +95,7 @@ func TestUserRepository_FetchWithPagination(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"name", "email", "gender", "status", "avatar"}).
 		AddRow("Testing User 1", "testuser1@gmail.com", "L", "active", "avatar.jpg").
 		AddRow("Testing User 2", "testuser2@gmail.com", "P", "active", "avatar.jpg")
-	selectQuery := regexp.QuoteMeta("SELECT name, email, gender, status, avatar FROM `users` WHERE is_student = ? AND `users`.`deleted_at` IS NULL LIMIT 10")
+	selectQuery := regexp.QuoteMeta("SELECT id,name, email, gender, status, avatar FROM `users` WHERE is_student = ? AND `users`.`deleted_at` IS NULL LIMIT 10")
 	mock.ExpectQuery(selectQuery).
 		WillReturnRows(rows)
 
@@ -314,6 +314,85 @@ func TestUserReporsitory_Destroy(t *testing.T) {
 	mock.ExpectCommit()
 
 	err = userRepository.Destroy(1)
+	assert.NoError(t, err)
+	assert.Nil(t, mock.ExpectationsWereMet())
+
+}
+
+func TestUserRepository_FetchStudent(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		log.Fatalf("Error creating mock database: %s", err)
+	}
+	defer db.Close()
+
+	mockDB, gormErr := gorm.Open(mysql.New(mysql.Config{
+		Conn:                      db,
+		SkipInitializeWithVersion: true,
+	}), &gorm.Config{})
+
+	if gormErr != nil {
+		t.Fatalf("Error creating GORM instance: %s", gormErr)
+	}
+
+	countQuery := "^SELECT count\\(\\*\\) FROM `users` WHERE is_student = \\? AND `users`.`deleted_at` IS NULL$"
+	mock.ExpectQuery(countQuery).
+		WithArgs(true).
+		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(2))
+
+	rows := sqlmock.NewRows([]string{"name", "email", "gender", "status", "avatar"}).
+		AddRow("Testing User 1", "testuser1@gmail.com", "L", "active", "avatar.jpg").
+		AddRow("Testing User 2", "testuser2@gmail.com", "P", "active", "avatar.jpg")
+	selectQuery := regexp.QuoteMeta("SELECT id,name, email, gender, status, avatar FROM `users` WHERE is_student = ? AND `users`.`deleted_at` IS NULL LIMIT 10")
+	mock.ExpectQuery(selectQuery).
+		WillReturnRows(rows)
+
+	users, totalItems, err := repository.NewUserRepository(mockDB).FecthStudent(1, 10)
+	if err != nil {
+		t.Fatalf("Error getting users: %s", err)
+	}
+
+	if len(users) != 2 {
+		t.Fatalf("Expected 1 user, but got %d", len(users))
+	}
+
+	if totalItems != 2 {
+		t.Fatalf("Expected total items to be 2, but got %d", totalItems)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Fatalf("Expectations were not met: %s", err)
+	}
+}
+
+func TestUserRepository_BlockStudent(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		log.Fatalf("Error creating mock database: %s", err)
+	}
+	defer db.Close()
+
+	mockDB, gormErr := gorm.Open(mysql.New(mysql.Config{
+		Conn:                      db,
+		SkipInitializeWithVersion: true,
+	}), &gorm.Config{})
+
+	if gormErr != nil {
+		t.Fatalf("Error creating GORM instance: %s", gormErr)
+	}
+
+	userRepository := repository.NewUserRepository(mockDB)
+
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users` WHERE id = ? AND `users`.`deleted_at` IS NULL")).
+		WithArgs(1).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "email", "status"}).AddRow(1, "Test User", "test@example.com", "active"))
+
+	mock.ExpectBegin()
+	mock.ExpectExec(regexp.QuoteMeta("UPDATE `users` SET")).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	mock.ExpectCommit()
+
+	err = userRepository.BlockStudent(1)
 	assert.NoError(t, err)
 	assert.Nil(t, mock.ExpectationsWereMet())
 

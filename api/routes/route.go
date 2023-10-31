@@ -20,7 +20,7 @@ func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 	adminGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			isStudent := c.Get("is_student").(bool)
-			if isStudent {
+			if isStudent == true {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"message": "Not authorized as admin",
 				})
@@ -36,7 +36,7 @@ func SetupRoute(e *echo.Echo, config *config.Config, db *gorm.DB) {
 	studentGroup.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			isStudent := c.Get("is_student").(bool)
-			if !isStudent {
+			if isStudent == false {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{
 					"message": "Not authorized as student",
 				})

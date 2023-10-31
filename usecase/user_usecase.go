@@ -53,3 +53,16 @@ func (u *userUseCase) Update(user *domain.User) error {
 func (u *userUseCase) Destroy(id int) error {
 	return u.userRepository.Destroy(id)
 }
+
+func (u *userUseCase) FecthStudent(page, pageSize int) ([]domain.User, int, error) {
+	users, totalItems, err := u.userRepository.FecthStudent(page, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, totalItems, nil
+}
+
+func (u *userUseCase) BlockStudent(id int) error {
+	return u.userRepository.BlockStudent(id)
+}
