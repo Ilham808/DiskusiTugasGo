@@ -217,3 +217,50 @@ func (controller *AnswerController) MarkAsCorrect() echo.HandlerFunc {
 		})
 	}
 }
+
+func (controller *AnswerController) UpVote() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		idLogin, _ := strconv.Atoi(c.Get("x-user-id").(string))
+
+		if err := controller.AnswerUseCase.UpVote(id, uint(idLogin)); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Answer upvoted successfully",
+		})
+
+	}
+}
+
+func (controller *AnswerController) DownVote() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		idLogin, _ := strconv.Atoi(c.Get("x-user-id").(string))
+
+		if err := controller.AnswerUseCase.DownVote(id, uint(idLogin)); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Answer downvoted successfully",
+		})
+	}
+}
