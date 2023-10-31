@@ -30,3 +30,17 @@ type AnswerRequest struct {
 type AnswerRequestFile struct {
 	File multipart.File
 }
+
+type AnswerUsecase interface {
+	Store(answer *AnswerRequest) (Answer, error)
+	StoreFile(req *AnswerRequestFile) (string, error)
+	Update(id int, answer *AnswerRequest) error
+	Destroy(id int) error
+}
+
+type AnswerRepository interface {
+	Store(answer Answer) (Answer, error)
+	Update(id int, answer *Answer) error
+	Destroy(id int) error
+	GetByID(id int) (Answer, error)
+}
