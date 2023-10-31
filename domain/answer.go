@@ -36,6 +36,7 @@ type AnswerUsecase interface {
 	StoreFile(req *AnswerRequestFile) (string, error)
 	Update(id int, answer *AnswerRequest) error
 	Destroy(id int, idLogin uint) error
+	MarkAsCorrect(id int, idLogin uint) error
 }
 
 type AnswerRepository interface {
@@ -43,4 +44,5 @@ type AnswerRepository interface {
 	Update(id int, answer *Answer) error
 	Destroy(id int) error
 	GetByID(id int) (Answer, error)
+	GetQuestionByID(id uint) (Question, error)
 }

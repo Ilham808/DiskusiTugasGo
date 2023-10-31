@@ -79,3 +79,26 @@ func (answerUseCase *answerUseCase) Destroy(id int, idLogin uint) error {
 
 	return nil
 }
+
+func (answerUseCase *answerUseCase) MarkAsCorrect(id int, idLogin uint) error {
+	getDataAnswer, err := answerUseCase.answerRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	getDataQuestion, err := answerUseCase.answerRepository.GetQuestionByID(getDataAnswer.QuestionID)
+	if err != nil {
+		return err
+	}
+
+	if idLogin != getDataQuestion.UserID {
+		return errors.New("You are not authorized to mark as correct this answer")
+	}
+
+	if getDataAnswer.IsCorrect == true {
+		return errors.New("Answer already marked as correct")
+	}
+
+	getDataAnswer.IsCorrect = true
+	return answerUseCase.answerRepository.Update(id, &getDataAnswer)
+}
