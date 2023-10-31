@@ -41,5 +41,9 @@ func (a *answerRepository) Update(id int, answer *domain.Answer) error {
 }
 
 func (a *answerRepository) Destroy(id int) error {
+	if err := a.db.Where("id = ?", id).Delete(&domain.Answer{}).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

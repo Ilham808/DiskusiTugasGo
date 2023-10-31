@@ -35,7 +35,7 @@ type AnswerUsecase interface {
 	Store(answer *AnswerRequest) (Answer, error)
 	StoreFile(req *AnswerRequestFile) (string, error)
 	Update(id int, answer *AnswerRequest) error
-	Destroy(id int) error
+	Destroy(id int, idLogin uint) error
 }
 
 type AnswerRepository interface {

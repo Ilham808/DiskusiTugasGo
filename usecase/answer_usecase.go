@@ -3,6 +3,7 @@ package usecase
 import (
 	"DiskusiTugas/domain"
 	"DiskusiTugas/internal"
+	"errors"
 )
 
 type answerUseCase struct {
@@ -38,6 +39,10 @@ func (answerUseCase *answerUseCase) Update(id int, req *domain.AnswerRequest) er
 		return err
 	}
 
+	if req.UserID != getByID.UserID {
+		return errors.New("You are not authorized to update this answer")
+	}
+
 	if req.FileUrl != "" {
 		urlResult, _ := internal.GetPublicIDFromURL(getByID.File)
 		err := internal.DeleteFromCloudinary(urlResult)
@@ -52,6 +57,25 @@ func (answerUseCase *answerUseCase) Update(id int, req *domain.AnswerRequest) er
 	return answerUseCase.answerRepository.Update(id, &getByID)
 }
 
-func (answerUseCase *answerUseCase) Destroy(id int) error {
-	return answerUseCase.answerRepository.Destroy(id)
+func (answerUseCase *answerUseCase) Destroy(id int, idLogin uint) error {
+	getByID, err := answerUseCase.answerRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	urlResult, _ := internal.GetPublicIDFromURL(getByID.File)
+	err = internal.DeleteFromCloudinary(urlResult)
+	if err != nil {
+		return err
+	}
+
+	if idLogin != getByID.UserID {
+		return errors.New("You are not authorized to delete this answer")
+	}
+
+	if err := answerUseCase.answerRepository.Destroy(id); err != nil {
+		return err
+	}
+
+	return nil
 }

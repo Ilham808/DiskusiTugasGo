@@ -129,6 +129,7 @@ func (controller *AnswerController) Update() echo.HandlerFunc {
 
 		xUserID, _ := strconv.ParseUint(c.Get("x-user-id").(string), 10, 32)
 		answerRequest.UserID = uint(xUserID)
+
 		file, err := c.FormFile("file")
 		if err == http.ErrMissingFile {
 			answerRequest.FileUrl = ""
@@ -167,6 +168,30 @@ func (controller *AnswerController) Update() echo.HandlerFunc {
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "Answer updated successfully",
+		})
+	}
+}
+
+func (controller *AnswerController) Destroy() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		idLogin, _ := strconv.Atoi(c.Get("x-user-id").(string))
+
+		err = controller.AnswerUseCase.Destroy(id, uint(idLogin))
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Answer deleted successfully",
 		})
 	}
 }
