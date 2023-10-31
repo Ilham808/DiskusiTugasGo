@@ -163,3 +163,26 @@ func (answerUseCase *answerUseCase) DownVote(id int, idLogin uint) error {
 
 	return answerUseCase.answerRepository.Update(id, &getDataAnswer)
 }
+
+func (answerUseCase *answerUseCase) Comment(req *domain.AnswerCommentRequest) error {
+	comment := domain.AnswerComment{
+		AnswerID: req.AnswerID,
+		UserID:   req.UserID,
+		Comment:  req.Comment,
+	}
+
+	return answerUseCase.answerRepository.Comment(&comment)
+}
+
+func (answerUseCase *answerUseCase) DestroyComment(id int, idComment int, idLogin uint) error {
+	comment, err := answerUseCase.answerRepository.CommentById(idComment)
+	if err != nil {
+		return err
+	}
+
+	if comment.UserID != idLogin {
+		return errors.New("You are not authorized to delete this comment")
+	}
+
+	return answerUseCase.answerRepository.DestroyComment(idComment)
+}

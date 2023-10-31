@@ -12,6 +12,6 @@ type AnswerComment struct {
 
 type AnswerCommentRequest struct {
 	UserID   uint
-	AnswerID uint   `validate:"required" json:"answer_id" form:"answer_id"`
+	AnswerID uint
 	Comment  string `validate:"required" json:"comment" form:"comment"`
 }
