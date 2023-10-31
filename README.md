@@ -22,6 +22,7 @@ Rest API ini memiliki beberapa fitur utama, termasuk:
 
 ```go
 go get github.com/labstack/echo/v4
+go get github.com/go-playground/validator/v10
 go get -u gorm.io/gorm
 go get -u gorm.io/driver/mysql
 go get github.com/joho/godotenv
@@ -30,6 +31,7 @@ go get -u github.com/golang-jwt/jwt/v5
 go get github.com/labstack/echo-jwt/v4
 go get -u github.com/stretchr/testify
 go get github.com/DATA-DOG/go-sqlmock
+go get github.com/cloudinary/cloudinary-go/v2
 ```
 ## Rancangan ERD
 
