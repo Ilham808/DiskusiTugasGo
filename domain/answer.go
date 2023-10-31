@@ -46,6 +46,8 @@ type AnswerUsecase interface {
 	MarkAsCorrect(id int, idLogin uint) error
 	UpVote(id int, idLogin uint) error
 	DownVote(id int, idLogin uint) error
+	Comment(req *AnswerCommentRequest) error
+	DestroyComment(id int, idComment int, idLogin uint) error
 }
 
 type AnswerRepository interface {
@@ -57,4 +59,7 @@ type AnswerRepository interface {
 	GetUserVote(id uint, idLogin uint) (UserVote, error)
 	AddUserVote(id uint, idLogin uint, voteType int) error
 	UpdateUserVote(id uint, idLogin uint, voteType int) error
+	Comment(comment *AnswerComment) error
+	DestroyComment(idComment int) error
+	CommentById(idComment int) (AnswerComment, error)
 }

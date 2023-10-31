@@ -264,3 +264,69 @@ func (controller *AnswerController) DownVote() echo.HandlerFunc {
 		})
 	}
 }
+
+func (controller *AnswerController) Comment() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		idLogin, _ := strconv.Atoi(c.Get("x-user-id").(string))
+
+		var commentRequest domain.AnswerCommentRequest
+		if err := c.Bind(&commentRequest); err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		commentRequest.AnswerID = uint(id)
+		commentRequest.UserID = uint(idLogin)
+
+		err = controller.AnswerUseCase.Comment(&commentRequest)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Answer commented successfully",
+		})
+
+	}
+}
+
+func (controller *AnswerController) DestroyComment() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid id parameter",
+			})
+		}
+
+		idComment, err := strconv.Atoi(c.Param("comment_id"))
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{
+				"message": "Invalid comment_id parameter",
+			})
+		}
+
+		idLogin, _ := strconv.Atoi(c.Get("x-user-id").(string))
+
+		if err := controller.AnswerUseCase.DestroyComment(id, idComment, uint(idLogin)); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "Answer comment deleted successfully",
+		})
+
+	}
+}
