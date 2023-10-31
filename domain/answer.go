@@ -18,6 +18,13 @@ type Answer struct {
 	Comment    []AnswerComment `gorm:"foreignKey:AnswerID"`
 }
 
+type UserVote struct {
+	*gorm.Model
+	UserID   uint
+	AnswerID uint
+	VoteType int
+}
+
 type AnswerRequest struct {
 	UserID     uint
 	QuestionID uint   `json:"question_id" form:"question_id"`
@@ -37,6 +44,8 @@ type AnswerUsecase interface {
 	Update(id int, answer *AnswerRequest) error
 	Destroy(id int, idLogin uint) error
 	MarkAsCorrect(id int, idLogin uint) error
+	UpVote(id int, idLogin uint) error
+	DownVote(id int, idLogin uint) error
 }
 
 type AnswerRepository interface {
@@ -45,4 +54,7 @@ type AnswerRepository interface {
 	Destroy(id int) error
 	GetByID(id int) (Answer, error)
 	GetQuestionByID(id uint) (Question, error)
+	GetUserVote(id uint, idLogin uint) (UserVote, error)
+	AddUserVote(id uint, idLogin uint, voteType int) error
+	UpdateUserVote(id uint, idLogin uint, voteType int) error
 }

@@ -102,3 +102,64 @@ func (answerUseCase *answerUseCase) MarkAsCorrect(id int, idLogin uint) error {
 	getDataAnswer.IsCorrect = true
 	return answerUseCase.answerRepository.Update(id, &getDataAnswer)
 }
+
+func (answerUseCase *answerUseCase) UpVote(id int, idLogin uint) error {
+	getDataAnswer, err := answerUseCase.answerRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if idLogin == getDataAnswer.UserID {
+		return errors.New("You cannot vote your own answer")
+	}
+
+	userVote, _ := answerUseCase.answerRepository.GetUserVote(uint(id), idLogin)
+
+	if userVote.VoteType == 1 {
+		return errors.New("You already voted this answer")
+	}
+
+	getDataAnswer.Vote++
+	if userVote.VoteType == -1 {
+		err = answerUseCase.answerRepository.UpdateUserVote(uint(id), idLogin, 1)
+	} else {
+		err = answerUseCase.answerRepository.AddUserVote(uint(id), idLogin, 1)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return answerUseCase.answerRepository.Update(id, &getDataAnswer)
+}
+
+func (answerUseCase *answerUseCase) DownVote(id int, idLogin uint) error {
+	getDataAnswer, err := answerUseCase.answerRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if idLogin == getDataAnswer.UserID {
+		return errors.New("You cannot vote your own answer")
+	}
+
+	userVote, _ := answerUseCase.answerRepository.GetUserVote(uint(id), idLogin)
+
+	if userVote.VoteType == -1 {
+		return errors.New("You already voted this answer")
+	}
+
+	getDataAnswer.Vote--
+
+	if userVote.VoteType == 1 {
+		err = answerUseCase.answerRepository.UpdateUserVote(uint(id), idLogin, -1)
+	} else {
+		err = answerUseCase.answerRepository.AddUserVote(uint(id), idLogin, -1)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return answerUseCase.answerRepository.Update(id, &getDataAnswer)
+}

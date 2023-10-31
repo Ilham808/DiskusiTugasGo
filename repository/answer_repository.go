@@ -56,3 +56,39 @@ func (a *answerRepository) GetQuestionByID(id uint) (domain.Question, error) {
 
 	return question, nil
 }
+
+func (a *answerRepository) GetUserVote(id uint, idLogin uint) (domain.UserVote, error) {
+	var userVote domain.UserVote
+	if err := a.db.Where("answer_id = ? AND user_id = ?", id, idLogin).First(&userVote).Error; err != nil {
+		return userVote, err
+	}
+
+	return userVote, nil
+}
+
+func (a *answerRepository) AddUserVote(id uint, idLogin uint, voteType int) error {
+	userVote := &domain.UserVote{
+		UserID:   idLogin,
+		AnswerID: id,
+		VoteType: voteType,
+	}
+
+	if err := a.db.Create(userVote).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *answerRepository) UpdateUserVote(id uint, idLogin uint, voteType int) error {
+	updatedFields := map[string]interface{}{
+		"vote_type": voteType,
+	}
+	if err := a.db.Model(&domain.UserVote{}).
+		Where("answer_id = ? AND user_id = ?", id, idLogin).
+		Updates(updatedFields).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
