@@ -336,6 +336,8 @@ func (sc *QuestionController) Update() echo.HandlerFunc {
 				"error":   errorMsgs,
 			})
 		}
+		xUserID, _ := strconv.ParseUint(c.Get("x-user-id").(string), 10, 32)
+		questionRequest.UserID = uint(xUserID)
 
 		file, err := c.FormFile("file")
 		if err == http.ErrMissingFile {
@@ -345,24 +347,26 @@ func (sc *QuestionController) Update() echo.HandlerFunc {
 				"message": err.Error(),
 			})
 		} else {
-			openedFile, err := file.Open()
-			if err != nil {
-				return c.JSON(http.StatusBadRequest, map[string]interface{}{
-					"message": err.Error(),
+			if file != nil {
+				openedFile, err := file.Open()
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"message": err.Error(),
+					})
+				}
+
+				imageUrl, err := sc.QuestionUseCase.StoreFile(&domain.QuestionRequestFile{
+					File: openedFile,
 				})
+
+				if err != nil {
+					return c.JSON(http.StatusBadRequest, map[string]interface{}{
+						"message": err.Error(),
+					})
+				}
+
+				questionRequest.FileUrl = imageUrl
 			}
-
-			imageUrl, err := sc.QuestionUseCase.StoreFile(&domain.QuestionRequestFile{
-				File: openedFile,
-			})
-
-			if err != nil {
-				return c.JSON(http.StatusBadRequest, map[string]interface{}{
-					"message": err.Error(),
-				})
-			}
-
-			questionRequest.FileUrl = imageUrl
 		}
 
 		err2 := sc.QuestionUseCase.Update(id, &questionRequest)
@@ -399,5 +403,82 @@ func (sc *QuestionController) Destroy() echo.HandlerFunc {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "Question deleted successfully",
 		})
+	}
+}
+
+func (sc *QuestionController) FetchQuestionBySubject() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		subjectSlug := c.Param("slug")
+		pageStr := c.QueryParam("page")
+		pageSizeStr := c.QueryParam("page_size")
+
+		var page, pageSize int
+		var err error
+
+		if pageStr != "" {
+			page, err = strconv.Atoi(pageStr)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"message": "Invalid page parameter",
+				})
+			}
+		} else {
+			page = 1
+		}
+
+		if pageSizeStr != "" {
+			pageSize, err = strconv.Atoi(pageSizeStr)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, map[string]interface{}{
+					"message": "Invalid page_size parameter",
+				})
+			}
+		} else {
+			pageSize = 10
+		}
+
+		questions, totalRecords, err := sc.QuestionUseCase.FetchQuestionBySubject(subjectSlug, page, pageSize)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+				"message": err.Error(),
+			})
+		}
+
+		totalPages := int(math.Ceil(float64(totalRecords) / float64(pageSize)))
+		if totalPages == 0 || totalPages < page {
+			totalPages = 1
+		}
+		prevPage := math.Max(float64(page-1), 0)
+
+		questionResponses := []QuestionRespon{}
+
+		for _, question := range questions {
+			questionResponses = append(questionResponses, QuestionRespon{
+				ID:          question.ID,
+				CreatedAt:   question.CreatedAt.String(),
+				UpdatedAt:   question.CreatedAt.String(),
+				DeletedAt:   question.CreatedAt.String(),
+				UserID:      question.UserID,
+				UserName:    question.User.Name,
+				SubjectID:   question.SubjectID,
+				SubjectName: question.Subject.Name,
+				Question:    question.Question,
+				Description: question.Description,
+				File:        question.File,
+			})
+		}
+
+		return c.JSON(http.StatusOK, QuestionResponsePagination{
+			Message: "Success get questions",
+			Data:    questionResponses,
+			Pagination: Pagination{
+				TotalRecords: totalRecords,
+				CurrentPage:  page,
+				TotalPages:   totalPages,
+				NextPage:     page + 1,
+				PrevPage:     int(prevPage),
+			},
+		})
+
 	}
 }
