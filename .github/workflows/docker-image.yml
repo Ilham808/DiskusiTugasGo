@@ -1,0 +1,46 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Create .env file from .env.example
+        run: cp .env.example .env
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek:latest
+      -
+        name: connect ssh
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          host: ${{ secrets.HOST_IP_GCP }}
+          username: ${{ secrets.USERNAME_GCP }}
+          key: ${{ secrets.KEY_SSH_GCP }}
+          port: ${{ secrets.PORT_GCP }}
+          script: |
+            docker stop ${{ secrets.COINTAINER_NAME }}
+            docker rm ${{ secrets.COINTAINER_NAME }}
+            docker rmi ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek
+            docker run --name ${{ secrets.COINTAINER_NAME }} -p 8000:8000 -d -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASSWORD= -e DB_PORT=${{ secrets.DB_PORT }} -e DB_HOST=${{ secrets.DB_HOST }} -e DB_NAME=${{ secrets.DB_NAME }} -e ACCESS_TOKEN_EXPIRY_HOUR=${{ secrets.ACCESS_TOKEN_EXPIRY_HOUR }} -e REFRESH_TOKEN_EXPIRY_HOUR=${{ secrets.REFRESH_TOKEN_EXPIRY_HOUR }} -e ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} -e REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} -e CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} -e CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} -e CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} -e CLOUDINARY_UPLOAD_FOLDER=${{ secrets.CLOUDINARY_UPLOAD_FOLDER }} -e SERVER=8000 ${{ secrets.DOCKERHUB_USERNAME }}/miniprojek

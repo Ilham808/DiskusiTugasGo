@@ -32,6 +32,7 @@ go get github.com/labstack/echo-jwt/v4
 go get -u github.com/stretchr/testify
 go get github.com/DATA-DOG/go-sqlmock
 go get github.com/cloudinary/cloudinary-go/v2
+go get github.com/sashabaranov/go-openai
 ```
 ## Rancangan ERD
 
