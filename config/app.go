@@ -22,6 +22,7 @@ type Config struct {
 	CloudinaryAPIKey       string
 	CloudinaryCloudName    string
 	CloudinaryUploadFolder string
+	OpenAIKey              string
 }
 
 func InitConfig() *Config {
@@ -57,6 +58,7 @@ func LoadConfig() (*Config, error) {
 		CloudinaryAPIKey:       os.Getenv("CLOUDINARY_API_KEY"),
 		CloudinaryCloudName:    os.Getenv("CLOUDINARY_CLOUD_NAME"),
 		CloudinaryUploadFolder: os.Getenv("CLOUDINARY_UPLOAD_FOLDER"),
+		OpenAIKey:              os.Getenv("OPEN_AI_KEY"),
 	}
 
 	return config, nil
