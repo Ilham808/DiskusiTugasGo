@@ -37,12 +37,17 @@ type QuestionUseCase interface {
 	GetByID(id int) (Question, error)
 	Update(id int, question *QuestionRequest) error
 	Destroy(id int, idLogin uint) error
+	FetchQuestionBySubject(slug string, page, pageSize int) ([]Question, int, error)
+	GetIdSubject(slug string) uint
 }
 
 type QuestionRepository interface {
 	FetchWithPagination(page, pageSize int) ([]Question, int, error)
 	Store(question *Question) error
 	GetByID(id int) (Question, error)
+	GetByIDQuestion(id int) (Question, error)
 	Update(id int, question *Question) error
 	Destroy(id int) error
+	GetIdSubject(slug string) uint
+	FetchQuestionBySubject(idSubject, page, pageSize int) ([]Question, int, error)
 }
