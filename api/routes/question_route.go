@@ -23,4 +23,6 @@ func NewQuestionRoute(config *config.Config, db *gorm.DB, studentGroup *echo.Gro
 	studentGroup.POST("/questions", sc.Store())
 	studentGroup.PUT("/questions/:id", sc.Update())
 	studentGroup.DELETE("/questions/:id", sc.Destroy())
+
+	studentGroup.GET("/subjects/:slug", sc.FetchQuestionBySubject())
 }

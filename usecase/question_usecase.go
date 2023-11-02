@@ -51,7 +51,7 @@ func (q *questionUseCase) DestroyFile(fileUrl string) error {
 }
 
 func (q *questionUseCase) Update(id int, req *domain.QuestionRequest) error {
-	getData, err := q.GetByID(id)
+	getData, err := q.questionRepository.GetByIDQuestion(id)
 	if err != nil {
 		return err
 	}
@@ -61,11 +61,16 @@ func (q *questionUseCase) Update(id int, req *domain.QuestionRequest) error {
 	}
 
 	if req.FileUrl != "" {
-		urlResult, _ := internal.GetPublicIDFromURL(getData.File)
-		err := internal.DeleteFromCloudinary(urlResult)
-		if err != nil {
-			return err
+		if getData.File != "" {
+			urlResult, _ := internal.GetPublicIDFromURL(getData.File)
+			err := internal.DeleteFromCloudinary(urlResult)
+			if err != nil {
+				return err
+			}
 		}
+		getData.File = req.FileUrl
+	} else {
+		getData.File = ""
 	}
 
 	getData.UserID = req.UserID
@@ -93,4 +98,14 @@ func (q *questionUseCase) Destroy(id int, idLogin uint) error {
 		return err
 	}
 	return q.questionRepository.Destroy(id)
+}
+
+func (q *questionUseCase) GetIdSubject(slug string) uint {
+	return q.questionRepository.GetIdSubject(slug)
+}
+
+func (q *questionUseCase) FetchQuestionBySubject(slug string, page, pageSize int) ([]domain.Question, int, error) {
+	idSubject := q.questionRepository.GetIdSubject(slug)
+
+	return q.questionRepository.FetchQuestionBySubject(int(idSubject), page, pageSize)
 }
