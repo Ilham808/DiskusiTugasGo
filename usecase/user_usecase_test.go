@@ -254,6 +254,8 @@ func TestUserUsecase_Delete(t *testing.T) {
 		err := userUsecase.Destroy(1)
 
 		assert.NoError(t, err)
+
+		mockUserRepository.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
@@ -263,6 +265,8 @@ func TestUserUsecase_Delete(t *testing.T) {
 		err := userUsecase.Destroy(1)
 
 		assert.Error(t, err)
+
+		mockUserRepository.AssertExpectations(t)
 	})
 }
 
